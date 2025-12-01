@@ -1,4 +1,5 @@
 """Inline keyboards for SPLAT Exam Bot"""
+import random
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
@@ -77,7 +78,7 @@ def get_quiz_navigation(current_q: int, total_q: int, question_id: int) -> Inlin
 
 
 def get_answer_options(question) -> InlineKeyboardMarkup:
-    """Create poll-style answer buttons"""
+    """Create poll-style answer buttons with shuffled options"""
     keyboard = []
     options = ['A', 'B', 'C', 'D', 'E']
     option_texts = [
@@ -88,14 +89,20 @@ def get_answer_options(question) -> InlineKeyboardMarkup:
         question.option_e
     ]
 
-    for opt, text in zip(options, option_texts):
-        if text:  # Only add if option exists
-            keyboard.append([
-                InlineKeyboardButton(
-                    text=f"{opt}) {text[:60]}{'...' if len(text) > 60 else ''}",
-                    callback_data=f"answer_{question.id}_{opt}"
-                )
-            ])
+    # Create list of (option_letter, option_text) pairs, filtering out empty options
+    options_with_text = [(opt, text) for opt, text in zip(options, option_texts) if text]
+
+    # Shuffle the options
+    random.shuffle(options_with_text)
+
+    # Create buttons with shuffled options
+    for opt, text in options_with_text:
+        keyboard.append([
+            InlineKeyboardButton(
+                text=f"{text[:60]}{'...' if len(text) > 60 else ''}",
+                callback_data=f"answer_{question.id}_{opt}"
+            )
+        ])
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
