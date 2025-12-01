@@ -3,6 +3,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.utils.markdown import html_decoration as hd
 from sqlalchemy import select
 from datetime import datetime
 
@@ -17,6 +18,17 @@ from ..keyboards.inline import (
 )
 
 router = Router()
+
+
+def escape_html(text: str) -> str:
+    """Escape HTML special characters"""
+    if not text:
+        return ""
+    return (text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;"))
 
 
 class QuizStates(StatesGroup):
@@ -128,10 +140,10 @@ async def show_question(message, state: FSMContext, edit: bool = False):
         question_text = f"📝 <b>Question {current_index + 1}/{len(questions)}</b>\n\n"
 
         if question.code:
-            question_text += f"<b>{question.question_text}</b>\n\n"
-            question_text += f"<pre>{question.code}</pre>\n\n"
+            question_text += f"<b>{escape_html(question.question_text)}</b>\n\n"
+            question_text += f"<pre>{escape_html(question.code)}</pre>\n\n"
         else:
-            question_text += f"{question.question_text}\n\n"
+            question_text += f"{escape_html(question.question_text)}\n\n"
 
         question_text += "Select your answer:"
 
@@ -210,13 +222,13 @@ async def process_answer(callback: CallbackQuery, state: FSMContext):
     result_text = f"{result_emoji} <b>{'Correct!' if is_correct else 'Incorrect'}</b>\n\n"
 
     if not is_correct:
-        result_text += f"<b>Your answer:</b> {selected_option}) {selected_text}\n"
-        result_text += f"<b>Correct answer:</b> {question.correct_answer}) {correct_text}\n\n"
+        result_text += f"<b>Your answer:</b> {selected_option}) {escape_html(selected_text)}\n"
+        result_text += f"<b>Correct answer:</b> {question.correct_answer}) {escape_html(correct_text)}\n\n"
 
-    result_text += f"<b>📖 Explanation:</b>\n{question.explanation}\n\n"
+    result_text += f"<b>📖 Explanation:</b>\n{escape_html(question.explanation)}\n\n"
 
     if question.source_file:
-        result_text += f"<i>Source: {question.source_file}</i>"
+        result_text += f"<i>Source: {escape_html(question.source_file)}</i>"
 
     await callback.message.edit_text(
         result_text,
