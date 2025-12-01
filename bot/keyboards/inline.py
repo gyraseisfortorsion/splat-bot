@@ -7,11 +7,7 @@ def get_main_menu() -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(text="📚 Start Quiz", callback_data="menu_quiz"),
-            InlineKeyboardButton(text="🎯 Daily Challenge", callback_data="daily_challenge")
-        ],
-        [
-            InlineKeyboardButton(text="💡 SPLAT Tests", callback_data="menu_splat_tests"),
-            InlineKeyboardButton(text="📖 Learn Topics", callback_data="menu_learn")
+            InlineKeyboardButton(text="💡 SPLAT Tests", callback_data="menu_splat_tests")
         ],
         [
             InlineKeyboardButton(text="📊 My Stats", callback_data="my_stats"),

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database.models import User
 from ..database.db import async_session_maker
-from ..keyboards.inline import get_main_menu, get_quiz_topics, get_splat_test_types, get_learn_topics, get_back_button
+from ..keyboards.inline import get_main_menu, get_quiz_topics, get_splat_test_types, get_back_button
 
 router = Router()
 
@@ -38,7 +38,6 @@ Hi {message.from_user.first_name}! Ready to ace your CSCI 501 final exam?
 
 <b>What this bot offers:</b>
 📚 200+ practice questions across all exam topics
-🎯 Daily challenges for consistent practice
 💡 102 real SPLAT test cases with detailed explanations
 📊 Progress tracking and statistics
 ✨ Instant feedback with comprehensive explanations
@@ -56,7 +55,6 @@ Hi {message.from_user.first_name}! Ready to ace your CSCI 501 final exam?
 <b>Quick Start:</b>
 🎯 Click "Start Quiz" to practice by topic
 📚 Click "SPLAT Tests" for real test case questions
-💡 Click "Learn Topics" for theory review
 📊 Click "My Stats" to track your progress
 
 Good luck with your exam! 🚀
@@ -122,19 +120,6 @@ async def menu_splat_tests(callback: CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data == "menu_learn")
-async def menu_learn(callback: CallbackQuery):
-    """Show learning topics"""
-    await callback.message.edit_text(
-        "📖 <b>Learn Topics</b>\n\n"
-        "Get theory explanations and key concepts for each topic:\n\n"
-        "Choose a topic to review fundamental concepts before practicing.",
-        reply_markup=get_learn_topics(),
-        parse_mode="HTML"
-    )
-    await callback.answer()
-
-
 @router.callback_query(F.data == "help")
 async def show_help(callback: CallbackQuery):
     """Show help information"""
@@ -144,9 +129,7 @@ async def show_help(callback: CallbackQuery):
 <b>Commands:</b>
 /start - Welcome message and main menu
 /menu - Show main menu
-/quiz [topic] - Start topic-specific quiz
 /stats - View your statistics
-/daily - Today's daily challenge
 /help - Show this help message
 
 <b>How to Use:</b>
@@ -195,9 +178,7 @@ async def cmd_help(message: Message):
 <b>Commands:</b>
 /start - Welcome message and main menu
 /menu - Show main menu
-/quiz [topic] - Start topic-specific quiz
 /stats - View your statistics
-/daily - Today's daily challenge
 /help - Show this help message
 
 <b>How to Use:</b>

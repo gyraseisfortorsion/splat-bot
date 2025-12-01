@@ -2,7 +2,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
-from sqlalchemy import select, func
+from sqlalchemy import select, func, cast, Integer
 from datetime import datetime, timedelta
 
 from ..database.models import User, UserAnswer, Question
@@ -74,7 +74,7 @@ async def get_category_stats(session, user_id: int) -> dict:
         select(
             Question.category,
             func.count(UserAnswer.id).label('total'),
-            func.sum(func.cast(UserAnswer.is_correct, func.Integer())).label('correct')
+            func.sum(cast(UserAnswer.is_correct, Integer)).label('correct')
         )
         .join(UserAnswer, UserAnswer.question_id == Question.id)
         .where(UserAnswer.user_id == user_id)
