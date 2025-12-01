@@ -101,6 +101,17 @@ async def start_quiz(callback: CallbackQuery, state: FSMContext):
 async def show_question(message, state: FSMContext, edit: bool = False):
     """Show current question"""
     data = await state.get_data()
+
+    # Handle missing state data
+    if 'current_index' not in data or 'questions' not in data:
+        error_text = "❌ Quiz session expired. Please start a new quiz."
+        if edit:
+            await message.edit_text(error_text, reply_markup=get_main_menu(), parse_mode="HTML")
+        else:
+            await message.answer(error_text, reply_markup=get_main_menu(), parse_mode="HTML")
+        await state.clear()
+        return
+
     current_index = data['current_index']
     questions = data['questions']
 
@@ -220,6 +231,18 @@ async def process_answer(callback: CallbackQuery, state: FSMContext):
 async def next_question(callback: CallbackQuery, state: FSMContext):
     """Move to next question"""
     data = await state.get_data()
+
+    # Handle missing state data
+    if 'current_index' not in data or 'questions' not in data:
+        await callback.message.edit_text(
+            "❌ Quiz session expired. Please start a new quiz.",
+            reply_markup=get_main_menu(),
+            parse_mode="HTML"
+        )
+        await state.clear()
+        await callback.answer("Quiz session expired")
+        return
+
     current_index = data['current_index'] + 1
 
     await state.update_data(
@@ -297,7 +320,7 @@ async def end_quiz(message, state: FSMContext, edit: bool = False):
 <b>What's next?</b>
 • Try another quiz topic
 • Review your statistics with /stats
-• Take the daily challenge
+• Practice with SPLAT test cases
 """
 
     await state.clear()
