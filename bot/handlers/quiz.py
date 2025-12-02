@@ -84,11 +84,20 @@ async def start_quiz(callback: CallbackQuery, state: FSMContext):
             await callback.answer()
             return
 
-        # Create quiz session
+        # Get or create user
         user_result = await session.execute(
             select(User).where(User.telegram_id == callback.from_user.id)
         )
-        user = user_result.scalar_one()
+        user = user_result.scalar_one_or_none()
+
+        if not user:
+            user = User(
+                telegram_id=callback.from_user.id,
+                username=callback.from_user.username,
+                first_name=callback.from_user.first_name
+            )
+            session.add(user)
+            await session.flush()  # Flush to get user.id
 
         quiz = Quiz(
             user_id=user.id,
@@ -189,11 +198,20 @@ async def process_answer(callback: CallbackQuery, state: FSMContext):
             correct_count = data.get('correct_count', 0) + 1
             await state.update_data(correct_count=correct_count)
 
-        # Get user
+        # Get or create user
         user_result = await session.execute(
             select(User).where(User.telegram_id == callback.from_user.id)
         )
-        user = user_result.scalar_one()
+        user = user_result.scalar_one_or_none()
+
+        if not user:
+            user = User(
+                telegram_id=callback.from_user.id,
+                username=callback.from_user.username,
+                first_name=callback.from_user.first_name
+            )
+            session.add(user)
+            await session.flush()  # Flush to get user.id
 
         # Record answer
         user_answer = UserAnswer(
