@@ -138,3 +138,22 @@ class QuestionLoader:
             select(Question).where(Question.id == question_id)
         )
         return result.scalar_one_or_none()
+
+    async def get_splat_random_questions(
+        self,
+        session: AsyncSession,
+        limit: int = 20
+    ) -> list:
+        """Get random questions from SPLAT tests (all subcategories)"""
+        from sqlalchemy import func
+
+        # Get questions from SPLAT subcategories
+        splat_subcategories = ['badlex', 'badparse', 'badsemantics', 'badexecution', 'goodexecution']
+
+        result = await session.execute(
+            select(Question)
+            .where(Question.subcategory.in_(splat_subcategories))
+            .order_by(func.random())
+            .limit(limit)
+        )
+        return result.scalars().all()

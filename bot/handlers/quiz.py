@@ -65,7 +65,10 @@ async def start_quiz(callback: CallbackQuery, state: FSMContext):
         loader = QuestionLoader()
 
         # Load questions based on category/subcategory
-        if subcategory:
+        if callback.data == 'splat_random':
+            # Special handling for random SPLAT tests
+            questions = await loader.get_splat_random_questions(session, limit=20)
+        elif subcategory:
             questions = await loader.get_questions_by_subcategory(session, subcategory, limit=10)
         elif category:
             questions = await loader.get_questions_by_category(session, category, limit=10)
